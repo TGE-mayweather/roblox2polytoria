@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>RBX → Polytoria</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Spectral', Georgia, serif;
+      --font-body:    'Spectral', Georgia, serif;
+      --bg:      #070707;
+      --border:  rgba(255,255,255,0.07);
+      --text:    #f0ede8;
+      --muted:   rgba(240,237,232,0.36);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      background-image: url('https://raw.githubusercontent.com/TGE-mayweather/roblox2polytoria/main/download%20(2).png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GATE ── */
+    #gate {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(7,7,7,0.96);
+      backdrop-filter: blur(24px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gate-inner { width: 100%; max-width: 380px; padding: 0 24px; }
+    .gate-label {
+      display: block; font-size: 10px; font-weight: 300;
+      letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 32px;
+    }
+    .gate-heading {
+      font-family: var(--font-display); font-size: 48px; font-weight: 800;
+      line-height: 0.9; letter-spacing: -0.02em; text-transform: uppercase;
+      color: var(--text); margin-bottom: 40px;
+    }
+    .gate-heading em {
+      display: block; font-style: italic; font-weight: 300;
+      font-size: 0.38em; letter-spacing: 0.08em;
+      color: var(--muted); text-transform: none; margin-bottom: 10px;
+    }
+    .gate-field { margin-bottom: 12px; }
+    #pwInput {
+      width: 100%; background: transparent; border: 1px solid var(--border);
+      color: var(--text); font-family: var(--font-body); font-size: 15px;
+      font-weight: 300; letter-spacing: 0.06em; padding: 16px 20px;
+      outline: none; transition: border-color 0.2s;
+    }
+    #pwInput:focus { border-color: rgba(255,255,255,0.3); }
+    #pwInput.shake { animation: shake 0.35s ease; border-color: rgba(255,80,80,0.5); }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }   60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    #pwSubmit {
+      width: 100%; background: transparent; color: var(--text);
+      border: 1px solid var(--border); font-family: var(--font-body);
+      font-size: 11px; font-weight: 300; letter-spacing: 0.2em;
+      text-transform: uppercase; padding: 14px 20px; cursor: pointer;
+      position: relative; overflow: hidden; transition: color 0.3s;
+    }
+    #pwSubmit::after {
+      content: ''; position: absolute; inset: 0; background: var(--text);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s cubic-bezier(0.77,0,0.175,1);
+    }
+    #pwSubmit:hover::after { transform: scaleX(1); }
+    #pwSubmit:hover { color: var(--bg); }
+    #pwSubmit span { position: relative; z-index: 1; }
+    #pwError {
+      margin-top: 16px; font-size: 11px; font-style: italic;
+      font-weight: 300; color: rgba(255,100,100,0.7);
+      min-height: 16px; letter-spacing: 0.04em;
+    }
+
+    #content { display: none; }
+
+    /* ── NAV ── */
+    nav {
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7,7,7,0.82); backdrop-filter: blur(16px);
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-size: 12px; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-center {
+      font-size: 11px; font-weight: 300; font-style: italic;
+      color: var(--muted); letter-spacing: 0.04em;
+    }
+    .nav-right { display: flex; justify-content: flex-end; gap: 28px; }
+    .nav-right a {
+      font-size: 11px; font-weight: 300; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-right a:hover { color: var(--text); }
+    .nav-right a.active { color: var(--text); }
+
+    /* ── HEADER ── */
+    .page-header {
+      padding: 48px 32px 40px; border-bottom: 1px solid var(--border);
+      background: rgba(7,7,7,0.72); backdrop-filter: blur(12px);
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 32px;
+    }
+    .page-heading {
+      font-family: var(--font-display); font-size: clamp(42px, 7vw, 108px);
+      font-weight: 800; line-height: 0.88; letter-spacing: -0.025em;
+      text-transform: uppercase; color: var(--text);
+    }
+    .page-heading .kicker {
+      display: block; font-weight: 300; font-style: italic;
+      font-size: 0.28em; letter-spacing: 0.1em;
+      color: var(--muted); text-transform: none; margin-bottom: 10px;
+    }
+    .header-tags { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+    .header-tags span {
+      font-size: 10px; font-weight: 300; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    /* ── PANELS ── */
+    main {
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: rgba(7,7,7,0.72); backdrop-filter: blur(12px);
+    }
+    .panel { padding: 56px 48px; }
+    .panel + .panel { border-left: 1px solid var(--border); }
+    .panel-label {
+      display: block; font-size: 10px; font-weight: 300;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 36px;
+    }
+
+    #uploadButton {
+      display: block; width: 100%; background: transparent;
+      color: var(--text); border: 1px solid var(--border);
+      cursor: pointer; font-family: var(--font-body);
+      padding: 52px 32px; position: relative; overflow: hidden; transition: color 0.35s;
+    }
+    #uploadButton::after {
+      content: ''; position: absolute; inset: 0; background: var(--text);
+      transform: scaleY(0); transform-origin: bottom;
+      transition: transform 0.45s cubic-bezier(0.77,0,0.175,1);
+    }
+    #uploadButton:hover::after { transform: scaleY(1); }
+    #uploadButton:hover { color: var(--bg); }
+    #uploadButton.drag-over { border-color: var(--text); }
+    .btn-inner { position: relative; z-index: 1; pointer-events: none; }
+    .btn-icon { display: block; width: 20px; height: 20px; margin: 0 auto 18px; }
+    .btn-title { display: block; font-family: var(--font-display); font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .btn-sub { display: block; font-size: 11px; font-weight: 300; font-style: italic; opacity: 0.45; }
+
+    .panel-note { margin-top: 20px; font-size: 12px; font-weight: 300; font-style: italic; color: var(--muted); line-height: 1.8; }
+    #status { margin-top: 16px; font-size: 11px; font-weight: 300; font-style: italic; color: var(--muted); min-height: 18px; letter-spacing: 0.04em; }
+
+    .preview-box {
+      border: 1px solid var(--border); background: rgba(9,9,9,0.6);
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .preview-box canvas { max-width: 100%; max-height: 100%; display: none; }
+    .preview-empty { font-size: 11px; font-style: italic; font-weight: 300; color: var(--muted); }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 20px 32px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(7,7,7,0.82); backdrop-filter: blur(16px);
+    }
+    footer span, footer a {
+      font-size: 10px; font-weight: 300; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted); text-decoration: none;
+    }
+    footer a:hover { color: var(--text); }
+
+    #imageInput, #sourceCanvas { display: none; }
+
+    @media (max-width: 800px) {
+      nav { grid-template-columns: 1fr; padding: 14px 20px; }
+      .nav-center { display: none; }
+      .nav-right { justify-content: flex-start; margin-top: 8px; flex-wrap: wrap; gap: 16px; }
+      .page-header { padding: 32px 20px 28px; flex-direction: column; align-items: flex-start; }
+      .header-tags { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+      main { grid-template-columns: 1fr; }
+      .panel + .panel { border-left: none; border-top: 1px solid var(--border); }
+      .panel { padding: 40px 20px; }
+      footer { padding: 16px 20px; flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="gate">
+    <div class="gate-inner">
+      <span class="gate-label">Restricted Access</span>
+      <h2 class="gate-heading"><em>RBX ↔ PT</em>Enter<br>Pass&shy;word</h2>
+      <div class="gate-field">
+        <input type="password" id="pwInput" placeholder="Password" autocomplete="current-password">
+      </div>
+      <button id="pwSubmit"><span>Unlock</span></button>
+      <p id="pwError"></p>
+    </div>
+  </div>
+
+  <div id="content">
+    <nav>
+      <a class="nav-logo" href="index.html">◆ RBX ↔ PT</a>
+      <span class="nav-center">Clothing template converter</span>
+      <div class="nav-right">
+        <a href="index.html" class="active">Shirt RBX→PT</a>
+        <a href="pt2rbx.html">Shirt PT→RBX</a>
+        <a href="pants.html">Pants RBX→PT</a>
+      </div>
+    </nav>
+
+    <div class="page-header">
+      <h1 class="page-heading">
+        <span class="kicker">Roblox to Polytoria</span>
+        Shirt<br>Con&shy;verter
+      </h1>
+      <div class="header-tags">
+        <span>Roblox Template</span>
+        <span>↓ Remapped</span>
+        <span>Polytoria Format</span>
+      </div>
+    </div>
+
+    <main>
+      <div class="panel">
+        <span class="panel-label">01 — Upload</span>
+        <button id="uploadButton">
+          <div class="btn-inner">
+            <svg class="btn-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 14V4M6 8l4-4 4 4"/><path d="M3 17h14"/>
+            </svg>
+            <span class="btn-title">Drop or click to upload</span>
+            <span class="btn-sub">Roblox shirt template · PNG</span>
+          </div>
+        </button>
+        <p class="panel-note">Upload a Roblox-format shirt texture. All body panel regions are remapped to the current Polytoria UV layout and downloaded automatically. Output filename: <em>yourfile (polytoria).png</em></p>
+        <div id="status"></div>
+      </div>
+      <div class="panel">
+        <span class="panel-label">02 — Preview</span>
+        <div class="preview-box" id="previewBox">
+          <span class="preview-empty">Output appears here after upload</span>
+          <canvas id="destinationCanvas" width="1024" height="1024"></canvas>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <span>RBX ↔ PT © 2025</span>
+      <a href="pants.html">Pants Converter ↗</a>
+    </footer>
+  </div>
+
+  <input type="file" accept="image/*" id="imageInput">
+  <canvas id="sourceCanvas" width="585" height="559"></canvas>
+
+  <script>
+    const STORED_HASH = '2834341636cf73fb2b1295297f557d2ce1bf9f062eba663c1fd9edf33d791112';
+    const gate = document.getElementById('gate'), content = document.getElementById('content');
+    const pwInput = document.getElementById('pwInput'), pwSubmit = document.getElementById('pwSubmit'), pwError = document.getElementById('pwError');
+    if (sessionStorage.getItem('unlocked') === STORED_HASH) { gate.style.display = 'none'; content.style.display = 'block'; }
+    async function hashString(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+    async function tryUnlock() {
+      if (!pwInput.value) return;
+      const hash = await hashString(pwInput.value);
+      if (hash === STORED_HASH) {
+        sessionStorage.setItem('unlocked', STORED_HASH);
+        gate.style.opacity = '0'; gate.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => { gate.style.display = 'none'; content.style.display = 'block'; }, 400);
+      } else {
+        pwError.textContent = 'Incorrect password.';
+        pwInput.classList.remove('shake'); void pwInput.offsetWidth; pwInput.classList.add('shake'); pwInput.value = '';
+        setTimeout(() => { pwInput.classList.remove('shake'); pwError.textContent = ''; }, 1500);
+      }
+    }
+    pwSubmit.addEventListener('click', tryUnlock);
+    pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+
+    const sourceCanvas = document.getElementById('sourceCanvas'), sourceCtx = sourceCanvas.getContext('2d');
+    const destinationCanvas = document.getElementById('destinationCanvas'), destinationCtx = destinationCanvas.getContext('2d');
+    const imageInput = document.getElementById('imageInput'), uploadButton = document.getElementById('uploadButton');
+    const statusEl = document.getElementById('status'), previewBox = document.getElementById('previewBox');
+    const previewEmpty = previewBox.querySelector('.preview-empty');
+    let originalFileName = 'output';
+
+    imageInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+    uploadButton.addEventListener('click', () => imageInput.click());
+    uploadButton.addEventListener('dragover', e => { e.preventDefault(); uploadButton.classList.add('drag-over'); });
+    uploadButton.addEventListener('dragleave', () => uploadButton.classList.remove('drag-over'));
+    uploadButton.addEventListener('drop', e => { e.preventDefault(); uploadButton.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) processFile(f); });
+
+    function processFile(file) {
+      originalFileName = file.name.replace(/\.[^/.]+$/, '');
+      statusEl.textContent = 'Loading…';
+      const reader = new FileReader();
+      reader.onload = ev => { const img = new Image(); img.onload = () => { sourceCtx.clearRect(0,0,sourceCanvas.width,sourceCanvas.height); sourceCtx.drawImage(img,0,0); processImage(); }; img.src = ev.target.result; };
+      reader.readAsDataURL(file);
+    }
+
+    function processImage() {
+      statusEl.textContent = 'Converting…';
+      destinationCtx.clearRect(0,0,destinationCanvas.width,destinationCanvas.height);
+      const regions = [
+        { cropX:231,cropY: 74,cropWidth:128,cropHeight:128,pasteX:439,pasteY:103,resizeWidth:146,resizeHeight:290 },
+        { cropX:165,cropY: 74,cropWidth: 64,cropHeight:128,pasteX:351,pasteY:103,resizeWidth: 88,resizeHeight:290 },
+        { cropX:361,cropY: 74,cropWidth: 64,cropHeight:128,pasteX:585,pasteY:103,resizeWidth: 88,resizeHeight:290 },
+        { cropX:231,cropY:  8,cropWidth:128,cropHeight: 64,pasteX:439,pasteY:  7,resizeWidth:146,resizeHeight: 96 },
+        { cropX:231,cropY:204,cropWidth:128,cropHeight: 64,pasteX:439,pasteY:393,resizeWidth:146,resizeHeight: 96 },
+        { cropX:427,cropY: 74,cropWidth:128,cropHeight:128,pasteX:439,pasteY:519,resizeWidth:146,resizeHeight:290 },
+        { cropX: 19,cropY:355,cropWidth: 64,cropHeight:128,pasteX:  6,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+        { cropX: 85,cropY:355,cropWidth: 64,cropHeight:128,pasteX: 72,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+        { cropX:151,cropY:355,cropWidth: 64,cropHeight:128,pasteX:138,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+        { cropX:217,cropY:355,cropWidth: 64,cropHeight:128,pasteX:204,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+        { cropX:217,cropY:289,cropWidth: 64,cropHeight: 64,pasteX:204,pasteY:  7,resizeWidth: 66,resizeHeight: 64 },
+        { cropX:217,cropY:485,cropWidth: 64,cropHeight: 64,pasteX:204,pasteY:361,resizeWidth: 66,resizeHeight: 64 },
+        { cropX:308,cropY:355,cropWidth: 64,cropHeight:128,pasteX:754,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+        { cropX:308,cropY:289,cropWidth: 64,cropHeight: 64,pasteX:754,pasteY:  7,resizeWidth: 66,resizeHeight: 64 },
+        { cropX:308,cropY:485,cropWidth: 64,cropHeight: 64,pasteX:754,pasteY:361,resizeWidth: 66,resizeHeight: 64 },
+        { cropX:374,cropY:355,cropWidth: 64,cropHeight:128,pasteX:820,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+        { cropX:440,cropY:355,cropWidth: 64,cropHeight:128,pasteX:886,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+        { cropX:506,cropY:355,cropWidth: 64,cropHeight:128,pasteX:952,pasteY: 71,resizeWidth: 66,resizeHeight:290 },
+      ];
+      sourceCtx.imageSmoothingEnabled = true;
+      regions.forEach(r => {
+        const tmp = document.createElement('canvas'); tmp.width = r.resizeWidth; tmp.height = r.resizeHeight;
+        const tc = tmp.getContext('2d'); tc.imageSmoothingEnabled = true;
+        tc.drawImage(sourceCanvas,r.cropX,r.cropY,r.cropWidth,r.cropHeight,0,0,r.resizeWidth,r.resizeHeight);
+        destinationCtx.putImageData(tc.getImageData(0,0,r.resizeWidth,r.resizeHeight),r.pasteX,r.pasteY);
+      });
+      previewEmpty.style.display = 'none'; destinationCanvas.style.display = 'block';
+      const link = document.createElement('a'); link.href = destinationCanvas.toDataURL('image/png');
+      link.download = originalFileName + ' (polytoria).png'; link.click();
+      statusEl.textContent = `↓ Downloaded as "${originalFileName} (polytoria).png"`;
+    }
+  </script>
+</body>
+</html>
